@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Identity Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">Đang kết nối...</div>
+    
+    <!-- Top right buttons -->
+    <div class="top-right-controls">
+        <button id="guide_btn" class="btn btn-secondary">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+            </svg>
+            Hướng dẫn
+        </button>
+        
+        <button id="shutdown_btn" class="btn btn-danger">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+            </svg>
+            Tắt hệ thống
+        </button>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Face Identity Console</h1>
+            <p>Hệ thống nhận diện khuôn mặt thời gian thực</p>
+        </div>
+
+        <div class="controls-section">
+            <div class="controls-grid">
+                <button id="show_raw_btn" class="btn btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Camera gốc
+                </button>
+                
+                <button id="show_processed_btn" class="btn btn-secondary">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zM4 4h16v2H4z"/>
+                    </svg>
+                    Camera xử lý
+                </button>
+                
+                <button id="record_btn" class="btn record-btn">
+                    <span id="camera_icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1L9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4l-3-3z"/>
+                        </svg>
+                    </span>
+                    <span id="record_text">Bắt đầu ghi hình</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="video-section">
+                    <div class="video-container">
+                        <div class="video-header">
+                            <div class="status-indicator"></div>
+                            <h3>Camera trực tiếp</h3>
+                        </div>
+                        <canvas id="raw_canvas" width="640" height="480"></canvas>
+                    </div>
+                    
+                    <div class="video-container" style="display: none;" id="processed_container">
+                        <div class="video-header">
+                            <div class="status-indicator"></div>
+                            <h3>Phát hiện khuôn mặt</h3>
+                        </div>
+                        <canvas id="processed_canvas" width="640" height="480"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="data-section">
+                    <div class="section-header">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V7H21V9M3 19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V11H3V19Z"/>
+                        </svg>
+                        <h2>Kết quả nhận diện</h2>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="identify_table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Họ và tên</th>
+                                    <th>Tuổi</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="empty-state">
+                                        <svg class="icon" viewBox="0 0 24 24">
+                                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V7H21V9M3 19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V11H3V19Z"/>
+                                        </svg>
+                                        <p>Chưa có dữ liệu nhận diện</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-header">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        <h2>Thêm người mới</h2>
+                    </div>
+                    
+                    <form id="add_identify_form" onsubmit="return false;">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="input_name">Họ và tên</label>
+                                <input type="text" id="input_name" placeholder="Nhập họ và tên" required class="form-input">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="input_old">Tuổi</label>
+                                <input type="number" id="input_old" placeholder="Nhập tuổi" required class="form-input" min="1" max="120">
+                            </div>
+                            
+                            <button id="add_identify_btn" type="submit" class="btn btn-success">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Thêm người
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="guide-modal" id="guideModal">
+        <div class="guide-content">
+            <div class="guide-header">
+                <h3>Hướng dẫn sử dụng</h3>
+                <button id="closeGuideBtn" style="background: none; border: none; cursor: pointer;">
+                    <svg class="icon" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Bước 1: Kết nối camera</h4>
+                        <p>Đảm bảo rằng camera đã được kết nối và cấp quyền truy cập.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Bước 2: Chọn chế độ xem</h4>
+                        <p>Chọn giữa "Camera gốc" để xem hình ảnh từ camera, hoặc "Camera xử lý" để xem hình ảnh đã qua xử lý nhận diện khuôn mặt.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Bước 3: Bắt đầu ghi hình</h4>
+                        <p>Nhấn nút "Bắt đầu ghi hình" để bắt đầu quá trình ghi hình ảnh và nhận diện khuôn mặt.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Bước 4: Xem kết quả nhận diện</h4>
+                        <p>Kết quả nhận diện sẽ được hiển thị trong bảng bên dưới camera. Bạn có thể thêm người mới vào danh sách nhận diện.</p>
+                    </div>
+                </div>
+                
+                <div class="guide-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>👀 Thêm người mới vào hệ thống</h4>
+                        <p><strong>a)</strong> Nhập thông tin: Điền họ tên và tuổi của người cần thêm vào form bên dưới.<br>
+                        <strong>b)</strong> Nhấn nút "Thêm người" để lưu thông tin.<br>
+                        <strong>c)</strong> Nhấn "Bắt đầu ghi hình" để kích hoạt camera.<br>
+                        <strong>d)</strong> Chọn "Camera xử lý" để bật chế độ nhận diện.<br>
+                        <strong>e)</strong> Đưa khuôn mặt người cần thêm vào chính giữa khung hình.<br>
+                        <strong>f)</strong> Giữ nguyên vị trí và chờ đến khi hệ thống nhận diện được người vừa thêm.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-actions">
+                <button class="btn btn-outline" id="printGuideBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 8h-1V5H6v3H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H5v-2h14v2zm0-4H5v-2h14v2zm0-4H5V10h14v2z"/>
+                    </svg>
+                    In hướng dẫn
+                </button>
+                
+                <button class="btn btn-success" id="gotItBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Tôi đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="root.js"></script>
+ 
+</body>
+</html>
